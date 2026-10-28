@@ -1,4 +1,10 @@
 {
-  "gallery": [],
+  "gallery": [
+    {
+      "src": "images/1793170044231-2c8f744daea6b1ea44cf665db7d136f7.webp",
+      "alt": "Meo mina",
+      "caption": "Meo mina"
+    }
+  ],
   "tracks": []
 }
