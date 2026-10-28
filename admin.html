@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Quản trị — Nguyễn Từ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0a0a0a;--paper:#f1f0ea;--acid:#d9ff43;--orange:#ff6b35;--muted:#77766f;--line:rgba(10,10,10,.2)}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font:15px/1.6 "Manrope",sans-serif;padding:28px 5vw 80px}
+main{max-width:760px;margin:0 auto}
+header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:28px;border-bottom:1px solid var(--ink);padding-bottom:14px}
+h1{font-size:34px;letter-spacing:-.05em}
+h2{font-size:18px;letter-spacing:-.03em;margin-bottom:8px}
+a{color:inherit}
+.card{border:1px solid var(--ink);background:#fff;padding:22px;margin-bottom:22px;box-shadow:8px 8px 0 var(--acid)}
+.hint,.status{font:12px/1.6 "DM Mono",monospace;color:var(--muted);margin:6px 0}
+.status.ok{color:#2f8a14}.status.err{color:#c0392b}
+input[type=text],input[type=password],input[type=url],input:not([type]),input[type=file]{width:100%;padding:11px 12px;border:1px solid var(--ink);background:var(--paper);font:inherit;margin:6px 0}
+button{font:700 13px "Manrope",sans-serif;padding:11px 18px;border:1px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer;margin:6px 8px 6px 0}
+button:hover{background:var(--orange);border-color:var(--orange)}
+button.ghost{background:transparent;color:var(--ink)}
+button:disabled{opacity:.45;cursor:wait}
+.tabs{display:flex;gap:0;margin-bottom:16px}
+.tabs button{margin:0;background:transparent;color:var(--ink)}
+.tabs button.on{background:var(--ink);color:#fff}
+.items{list-style:none;margin-top:18px}
+.items li{display:flex;align-items:center;gap:12px;border-top:1px solid var(--line);padding:10px 0}
+.items img{width:52px;height:52px;object-fit:cover;background:var(--paper);flex:none}
+.items .meta{flex:1;min-width:0;overflow-wrap:anywhere;font-size:13px}
+.items .meta small{display:block;color:var(--muted);font-family:"DM Mono",monospace;font-size:11px}
+.items button{margin:0;padding:7px 12px;font-size:12px}
+ol{padding-left:20px;font-size:13px;color:#44433e}
+</style>
+</head>
+<body>
+<main>
+  <header><h1>Quản trị</h1><a href="index.html">← Về trang chủ</a></header>
+
+  <section class="card">
+    <h2>1. Kết nối GitHub</h2>
+    <p class="hint">Repo: nguyen123tu/nguyen123tu.github.io · Token chỉ lưu trong trình duyệt này, không nằm trong code.</p>
+    <input id="token" type="password" placeholder="github_pat_..." autocomplete="off">
+    <button id="save-token" type="button">Lưu &amp; kiểm tra</button>
+    <button id="clear-token" type="button" class="ghost">Xóa token</button>
+    <p id="auth-status" class="status"></p>
+    <details>
+      <summary class="hint">Cách tạo token</summary>
+      <ol>
+        <li>GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.</li>
+        <li>Repository access: <b>Only select repositories</b> → chọn đúng repo nguyen123tu.github.io.</li>
+        <li>Permissions → Repository permissions → <b>Contents: Read and write</b>.</li>
+        <li>Đặt hạn dùng (ví dụ 90 ngày), tạo rồi dán token vào ô trên.</li>
+      </ol>
+    </details>
+  </section>
+
+  <section class="card" id="panel" hidden>
+    <div class="tabs">
+      <button type="button" data-tab="photos" class="on">Ảnh</button>
+      <button type="button" data-tab="music">Nhạc</button>
+    </div>
+
+    <div id="tab-photos">
+      <h2>Tải ảnh lên</h2>
+      <p class="hint">Ảnh được tự động thu nhỏ (tối đa 1600px) và nén WebP trước khi tải.</p>
+      <form id="photo-form">
+        <input id="photo-files" type="file" accept="image/*" multiple required>
+        <input id="photo-caption" type="text" placeholder="Chú thích (không bắt buộc, dùng chung cho các ảnh đã chọn)">
+        <button type="submit">Tải ảnh lên</button>
+      </form>
+      <ul class="items" id="photo-list"></ul>
+    </div>
+
+    <div id="tab-music" hidden>
+      <h2>Thêm bài hát</h2>
+      <p class="hint">Dán link Spotify/YouTube, hoặc chọn file nhạc (tối đa ~25 MB, chỉ nên dùng nhạc bạn có quyền chia sẻ).</p>
+      <form id="music-form">
+        <input id="m-title" type="text" placeholder="Tên bài *" required>
+        <input id="m-artist" type="text" placeholder="Ca sĩ / nghệ sĩ">
+        <input id="m-link" type="url" placeholder="Link Spotify hoặc YouTube">
+        <p class="hint">— hoặc —</p>
+        <input id="m-file" type="file" accept="audio/*">
+        <button type="submit">Thêm bài</button>
+      </form>
+      <ul class="items" id="music-list"></ul>
+    </div>
+
+    <p id="log" class="status"></p>
+    <p class="hint">Sau khi tải lên, GitHub Pages cần khoảng 1 phút để cập nhật trang chính.</p>
+  </section>
+</main>
+
+<script>
+const OWNER = "nguyen123tu", REPO = "nguyen123tu.github.io";
+const API = `https://api.github.com/repos/${OWNER}/${REPO}`;
+const TOKEN_KEY = "gh_admin_token";
+let branch = "main";
+
+const $ = (s) => document.querySelector(s);
+const esc = (v = "") => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const getToken = () => { try { return localStorage.getItem(TOKEN_KEY) || ""; } catch { return ""; } };
+const setToken = (t) => { try { t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY); } catch {} };
+
+function say(el, msg, kind = "") { el.textContent = msg; el.className = "status " + kind; }
+const log = (m, k) => say($("#log"), m, k);
+const setBusy = (b) => document.querySelectorAll("button, input").forEach((el) => { if (el.id !== "token") el.disabled = b; });
+
+async function gh(path, opts = {}) {
+  const res = await fetch(API + path, {
+    ...opts, cache: "no-store",
+    headers: {
+      Accept: "application/vnd.github+json",
+      Authorization: `Bearer ${getToken()}`,
+      "X-GitHub-Api-Version": "2022-11-28",
+      ...(opts.body ? { "Content-Type": "application/json" } : {}),
+    },
+  });
+  if (!res.ok) {
+    let msg = res.statusText;
+    try { msg = (await res.json()).message || msg; } catch {}
+    const e = new Error(`${res.status}: ${msg}`); e.status = res.status; throw e;
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+const utf8ToB64 = (str) => { let bin = ""; new TextEncoder().encode(str).forEach((b) => (bin += String.fromCharCode(b))); return btoa(bin); };
+const b64ToUtf8 = (b64) => new TextDecoder().decode(Uint8Array.from(atob(b64.replace(/\s/g, "")), (c) => c.charCodeAt(0)));
+const blobToB64 = (blob) => new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(r.result.split(",")[1]); r.onerror = () => no(r.error); r.readAsDataURL(blob); });
+const slug = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/gi, "d").toLowerCase().replace(/\.[^.]+$/, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "file";
+
+async function readData() {
+  try {
+    const f = await gh(`/contents/data.json?ref=${encodeURIComponent(branch)}`);
+    const d = JSON.parse(b64ToUtf8(f.content));
+    return { data: { gallery: d.gallery || [], tracks: d.tracks || [] }, sha: f.sha };
+  } catch (e) {
+    if (e.status === 404) return { data: { gallery: [], tracks: [] }, sha: null };
+    throw e;
+  }
+}
+async function updateData(mutate, message) {
+  for (let i = 0; i < 2; i++) {
+    const { data, sha } = await readData();
+    mutate(data);
+    const body = { message, content: utf8ToB64(JSON.stringify(data, null, 2) + "\n"), branch };
+    if (sha) body.sha = sha;
+    try { await gh("/contents/data.json", { method: "PUT", body: JSON.stringify(body) }); return data; }
+    catch (e) { if (e.status === 409 && i === 0) continue; throw e; }
+  }
+}
+async function putFile(path, blob, message) {
+  return gh(`/contents/${path}`, { method: "PUT", body: JSON.stringify({ message, content: await blobToB64(blob), branch }) });
+}
+async function deleteFile(path) {
+  const f = await gh(`/contents/${path}?ref=${encodeURIComponent(branch)}`);
+  await gh(`/contents/${path}`, { method: "DELETE", body: JSON.stringify({ message: `Xóa ${path}`, sha: f.sha, branch }) });
+}
+
+async function compressImage(file, maxW = 1600) {
+  const bmp = await createImageBitmap(file);
+  const scale = Math.min(1, maxW / bmp.width);
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bmp.width * scale); canvas.height = Math.round(bmp.height * scale);
+  canvas.getContext("2d").drawImage(bmp, 0, 0, canvas.width, canvas.height);
+  const toBlob = (type, q) => new Promise((r) => canvas.toBlob(r, type, q));
+  let blob = await toBlob("image/webp", 0.85), ext = "webp";
+  if (!blob || blob.type !== "image/webp") { blob = await toBlob("image/jpeg", 0.85); ext = "jpg"; }
+  return { blob, ext };
+}
+
+function toEmbed(url) {
+  let m;
+  if ((m = url.match(/open\.spotify\.com\/(?:intl-[a-z]+\/)?(track|album|playlist|episode|show|artist)\/([A-Za-z0-9]+)/)))
+    return { embed: `https://open.spotify.com/embed/${m[1]}/${m[2]}`, height: m[1] === "track" || m[1] === "episode" ? 152 : 352 };
+  if ((m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/)))
+    return { embed: `https://www.youtube.com/embed/${m[1]}`, height: 220 };
+  return null;
+}
+
+async function connect() {
+  const status = $("#auth-status");
+  if (!getToken()) { say(status, "Chưa có token.", ""); $("#panel").hidden = true; return; }
+  say(status, "Đang kiểm tra...");
+  try {
+    const repo = await gh("");
+    branch = repo.default_branch || "main";
+    if (repo.permissions && !repo.permissions.push) throw new Error("Token chưa có quyền ghi (Contents: Read and write).");
+    say(status, `Đã kết nối repo ${repo.full_name} (nhánh ${branch}).`, "ok");
+    $("#panel").hidden = false;
+    await refreshLists();
+  } catch (e) {
+    say(status, "Lỗi: " + e.message, "err");
+    $("#panel").hidden = true;
+  }
+}
+
+async function refreshLists() {
+  const { data } = await readData();
+  const photos = $("#photo-list"), music = $("#music-list");
+  photos.innerHTML = data.gallery.length ? "" : '<li class="hint">Chưa có ảnh.</li>';
+  data.gallery.forEach((g) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<img src="${esc(g.src)}" alt="" onerror="this.style.visibility='hidden'"><div class="meta">${esc(g.caption || "(không chú thích)")}<small>${esc(g.src)}</small></div><button type="button" class="ghost">Xóa</button>`;
+    li.querySelector("button").onclick = () => removeItem("gallery", g.src, g.src);
+    photos.appendChild(li);
+  });
+  music.innerHTML = data.tracks.length ? "" : '<li class="hint">Chưa có bài nào.</li>';
+  data.tracks.forEach((t) => {
+    const key = t.audio || t.embed;
+    const li = document.createElement("li");
+    li.innerHTML = `<div class="meta">${esc(t.title)}${t.artist ? " — " + esc(t.artist) : ""}<small>${esc(key)}</small></div><button type="button" class="ghost">Xóa</button>`;
+    li.querySelector("button").onclick = () => removeItem("tracks", key, t.audio);
+    music.appendChild(li);
+  });
+}
+
+async function removeItem(kind, key, filePath) {
+  if (!confirm("Xóa mục này khỏi trang?")) return;
+  setBusy(true);
+  try {
+    log("Đang xóa...");
+    await updateData((d) => { d[kind] = d[kind].filter((x) => (x.src || x.audio || x.embed) !== key); }, "Xóa mục khỏi data.json");
+    if (filePath) { try { await deleteFile(filePath); } catch (e) { log("Đã gỡ khỏi trang nhưng chưa xóa được file: " + e.message, "err"); setBusy(false); await refreshLists(); return; } }
+    log("Đã xóa.", "ok");
+    await refreshLists();
+  } catch (e) { log("Lỗi: " + e.message, "err"); }
+  setBusy(false);
+}
+
+$("#save-token").onclick = () => { setToken($("#token").value.trim()); $("#token").value = ""; connect(); };
+$("#clear-token").onclick = () => { setToken(""); $("#token").value = ""; connect(); };
+
+document.querySelectorAll(".tabs button").forEach((b) => b.onclick = () => {
+  document.querySelectorAll(".tabs button").forEach((x) => x.classList.toggle("on", x === b));
+  $("#tab-photos").hidden = b.dataset.tab !== "photos";
+  $("#tab-music").hidden = b.dataset.tab !== "music";
+});
+
+$("#photo-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const files = [...$("#photo-files").files];
+  const caption = $("#photo-caption").value.trim();
+  if (!files.length) return;
+  setBusy(true);
+  let done = 0;
+  try {
+    for (const file of files) {
+      log(`Đang xử lý ${file.name} (${done + 1}/${files.length})...`);
+      const { blob, ext } = await compressImage(file);
+      const path = `images/${Date.now()}-${slug(file.name)}.${ext}`;
+      await putFile(path, blob, `Thêm ảnh ${path}`);
+      await updateData((d) => { d.gallery.unshift({ src: path, alt: caption || "Ảnh", caption }); }, `Thêm ảnh ${path} vào data.json`);
+      done++;
+    }
+    log(`Đã tải lên ${done} ảnh.`, "ok");
+    e.target.reset();
+    await refreshLists();
+  } catch (err) { log(`Lỗi sau ${done}/${files.length} ảnh: ${err.message}`, "err"); }
+  setBusy(false);
+});
+
+$("#music-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const title = $("#m-title").value.trim(), artist = $("#m-artist").value.trim();
+  const link = $("#m-link").value.trim(), file = $("#m-file").files[0];
+  if (!!link === !!file) return log("Hãy dán link HOẶC chọn file (chỉ một trong hai).", "err");
+  setBusy(true);
+  try {
+    let track = { title, artist };
+    if (link) {
+      const em = toEmbed(link);
+      if (!em) throw new Error("Chỉ hỗ trợ link Spotify hoặc YouTube.");
+      Object.assign(track, em);
+    } else {
+      if (file.size > 25 * 1024 * 1024) throw new Error("File quá lớn (tối đa ~25 MB).");
+      const ext = (file.name.match(/\.([a-z0-9]+)$/i) || [, "mp3"])[1].toLowerCase();
+      const path = `music/${Date.now()}-${slug(file.name)}.${ext}`;
+      log("Đang tải file nhạc...");
+      await putFile(path, file, `Thêm nhạc ${path}`);
+      track.audio = path;
+    }
+    await updateData((d) => { d.tracks.unshift(track); }, `Thêm bài ${title} vào data.json`);
+    log("Đã thêm bài hát.", "ok");
+    e.target.reset();
+    await refreshLists();
+  } catch (err) { log("Lỗi: " + err.message, "err"); }
+  setBusy(false);
+});
+
+connect();
+</script>
+</body>
+</html>
